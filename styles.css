@@ -1,0 +1,46 @@
+body {
+    margin: 0;
+    height: 1800px;
+    background: #00e1ff;
+    background: linear-gradient(180deg, rgba(0, 225, 255, 1) 0%, rgba(0, 255, 170, 1) 100%);
+}
+
+* {
+    font-size: 18px;
+    font-family: "Noto Sans", sans-serif;
+}
+
+#topsec {
+    width: 100%;
+    /*border: black solid 2px;*/
+}
+
+#navbar {
+    display: flex;
+    flex-direction: row;
+}
+
+#navbar > div {
+    text-align: center;
+}
+
+#hotelname {
+    text-align: left;
+    width: 55%;
+}
+
+#search {
+    width: 15%;
+    border-left: 0.5px rgb(140, 140, 140) solid;
+}
+
+#menu {
+    width: 15%;
+    border-left: 0.5px rgb(140, 140, 140) solid;
+}
+
+#login {
+    width: 15%;
+    color: rgba(0, 225, 255, 1);
+    background-color: black;
+}
