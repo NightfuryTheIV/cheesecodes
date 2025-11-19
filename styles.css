@@ -48,3 +48,15 @@ body {
     color: rgba(0, 225, 255, 1);
     background-color: black;
 }
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+#carre {
+    height: 50em;
+    width: 96%;
+    background-color: gray;
+    margin: 2em;
+}
