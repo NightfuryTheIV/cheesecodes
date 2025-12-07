@@ -20,26 +20,26 @@ let db;
 // Connexion à MongoDB
 MongoClient.connect(mongoURL)
   .then(client => {
-    console.log('✅ Connecté à MongoDB');
+    console.log('✅ Connected to MongoDB');
     db = client.db(dbName);
     
     // Créer les collections si elles n'existent pas
     initializeCollections();
   })
-  .catch(error => console.error('❌ Erreur de connexion MongoDB:', error));
+  .catch(error => console.error('MongoDB connection error:', error));
 
 async function initializeCollections() {
-  // Créer la collection des chambres si elle n'existe pas
-  const roomsCount = await db.collection('rooms').countDocuments();
+  // Vérifier rooms
+  const roomsCount = await db.collection('rooms').countDocuments().catch(() => 0);
+
   if (roomsCount === 0) {
-    console.log('📝 Création des chambres...');
+    console.log('Creation of basic rooms...');
     await db.collection('rooms').insertMany([
       {
         name: 'Standard Room',
         type: 'standard',
         description: 'Comfortable room with queen-size bed, personal bathroom and sights on the garden.',
         price: 89,
-        amenities: ['WiFi', 'TV', 'Bathroom', 'Garden View'],
         maxGuests: 2,
         available: true
       },
@@ -48,7 +48,6 @@ async function initializeCollections() {
         type: 'premium',
         description: 'Vast room with a personal balcony, mini-bar and a breathtaking view on the landscape.',
         price: 149,
-        amenities: ['WiFi', 'TV', 'Bathroom', 'Balcony', 'Mini-bar', 'Landscape View'],
         maxGuests: 3,
         available: true
       },
@@ -57,16 +56,87 @@ async function initializeCollections() {
         type: 'presidential',
         description: 'Luxurious room with a large living room, jacuzzi and butlers available.',
         price: 299,
-        amenities: ['WiFi', 'TV', 'Bathroom', 'Living Room', 'Jacuzzi', 'Butler Service'],
         maxGuests: 4,
         available: true
       }
     ]);
-    console.log('✅ Chambres créées');
+  }
+
+  // Vérifier users
+  const usersCount = await db.collection('users').countDocuments().catch(() => 0);
+
+  if (usersCount === 0) {
+    console.log("Creating the 'users' collection (empty)");
+    // insertMany([]) interdit
+    // On ne met rien, MongoDB crée la collection automatiquement
   }
 }
 
 // API Routes
+
+// ========================
+// 🔐 USERS AUTH ROUTES
+// ========================
+
+// REGISTER
+app.post('/api/users/register', async (req, res) => {
+  try {
+    const { name, email, phone, password } = req.body;
+
+    const existing = await db.collection('users').findOne({ email });
+    if (existing) {
+      return res.json({ success: false, error: "Email address already used" });
+    }
+
+    const newUser = {
+      name,
+      email,
+      phone,
+      password, // à sécuriser plus tard (hash)
+      createdAt: new Date()
+    };
+
+    await db.collection('users').insertOne(newUser);
+
+    res.json({ success: true, user: newUser });
+
+  } catch (error) {
+    res.json({ success: false, error: error.message });
+  }
+});
+
+// LOGIN
+app.post('/api/users/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await db.collection('users').findOne({ email });
+
+    if (!user || user.password !== password) {
+      return res.json({ success: false, error: "Incorrect id" });
+    }
+
+    res.json({ success: true, user });
+
+  } catch (error) {
+    res.json({ success: false, error: error.message });
+  }
+});
+
+// USER BOOKINGS
+app.get('/api/users/:email/bookings', async (req, res) => {
+  try {
+    const bookings = await db.collection('bookings')
+      .find({ guestEmail: req.params.email })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.json(bookings);
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // GET : Récupérer toutes les chambres
 app.get('/api/rooms', async (req, res) => {
@@ -126,7 +196,7 @@ app.post('/api/bookings', async (req, res) => {
     const room = await db.collection('rooms').findOne({ type: roomType });
     
     if (!room) {
-      return res.status(404).json({ error: 'Chambre non trouvée' });
+      return res.status(404).json({ error: 'Room not found' });
     }
     
     // Calculer le nombre de nuits et le prix total
@@ -182,7 +252,7 @@ app.get('/api/bookings/:id', async (req, res) => {
     });
     
     if (!booking) {
-      return res.status(404).json({ error: 'Réservation non trouvée' });
+      return res.status(404).json({ error: 'Reservation not found' });
     }
     
     res.json(booking);
@@ -233,6 +303,6 @@ app.get('/api/stats', async (req, res) => {
 
 // Démarrer le serveur
 app.listen(PORT, () => {
-  console.log(`🚀 Serveur Cheesecode House démarré sur http://localhost:${PORT}`);
-  console.log(`📂 Ouvrez http://localhost:${PORT} dans votre navigateur`);
+  console.log("Cheesecode House server started on http://localhost:${PORT}");
+  console.log("Open http://localhost:${PORT} in your browser");
 });
