@@ -3,13 +3,14 @@
     <head>
         <meta charset="UTF-8"/>
         <title>Cheese Codes' prized project!</title>
-        <link type="text/css" rel="stylesheet" href="../styles.css">
+        <link type="text/css" rel="stylesheet" href="styles.css">
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
         </style>
     </head>
 
     <body>
+        <script src="javascript.js"></script>
 <nav id="navbar">
         <div id="hotelname">Cheesecode house</div>
         <div id="search" onclick="document.querySelector('.search-box').scrollIntoView({behavior: 'smooth'})">Search</div>
@@ -89,7 +90,7 @@
                     <h3>Standard Room</h3>
                     <p>Comfortable room with queen-size bed, personal bathroom and sights on the garden.</p>
                     <div class="room-price">£89 per night</div>
-                    <button class="book-btn" onclick="bookRoom('Standard')">Réserver</button>
+                    <button class="book-btn" onclick="bookRoom('Standard')">Book</button>
                 </div>
             </div>
             <div class="room-card">
@@ -98,7 +99,7 @@
                     <h3>Premium Room</h3>
                     <p>Vast room with a personal balcony, mini-bar and a breathtaking view on the landscape.</p>
                     <div class="room-price">£149  per night</div>
-                    <button class="book-btn" onclick="bookRoom('Deluxe')">Réserver</button>
+                    <button class="book-btn" onclick="bookRoom('Deluxe')">Book</button>
                 </div>
             </div>
             <div class="room-card">
@@ -107,10 +108,22 @@
                     <h3>Preseidential Room</h3>
                     <p>Luxurious room with a large living room, jacuzzi and butlers available.</p>
                     <div class="room-price">£299 per night</div>
-                    <button class="book-btn" onclick="bookRoom('Présidentielle')">Réserver</button>
+                    <button class="book-btn" onclick="bookRoom('Présidentielle')">Book</button>
                 </div>
             </div>
         </div>
+        <div id="loginModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeLoginModal()">&times;</span>
+        <h2>Connexion</h2>
+        <form class="login-form" onsubmit="handleLogin(event)">
+            <input type="email" placeholder="E-mail" required>
+            <input type="password" placeholder="Password" required>
+            <button type="submit">Log in</button>
+            <a href="#" onclick="event.preventDefault(); showRegisterForm()">Create an account</a>
+        </form>
+    </div>
+</div>
     </section>
     
     <footer>
@@ -123,184 +136,13 @@
             <span class="close-modal" onclick="closeLoginModal()">&times;</span>
             <h2>Connexion</h2>
             <form class="login-form" onsubmit="handleLogin(event)">
-                <input type="email" placeholder="Adresse e-mail" required>
-                <input type="password" placeholder="Mot de passe" required>
+                <input type="email" placeholder="E-mail" required>
+                <input type="password" placeholder="Password" required>
                 <button type="submit">Se connecter</button>
-                <a href="#" onclick="alert('Fonction en construction')">Mot de passe oublié ?</a>
-                <a href="#" onclick="alert('Fonction en construction')">Créer un compte</a>
+                <a href="#" onclick="alert('Function under construction')">Forgot your password?</a>
+                <a href="#" onclick="alert('Function under construction')">Create an account</a>
             </form>
         </div>
     </div>
-    <script>
-const API_URL = 'http://localhost:3000/api';
-// Attendre que la page soit complètement chargée
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Page chargée, initialisation...');
-    
-    // Ajouter des IDs aux inputs s'ils n'existent pas
-    const dateInputs = document.querySelectorAll('input[type="date"]');
-    if (dateInputs[0]) dateInputs[0].id = 'checkin';
-    if (dateInputs[1]) dateInputs[1].id = 'checkout';
-    
-    const selectInput = document.querySelector('select');
-    if (selectInput) selectInput.id = 'adults';
-});
-
-// Fonction de recherche de chambres
-async function searchRooms(event) {
-    event.preventDefault();
-    console.log('searchRooms appelée');
-    
-    const checkinInput = document.getElementById('checkin');
-    const checkoutInput = document.getElementById('checkout');
-    const adultsInput = document.getElementById('adults');
-    
-    console.log('Elements trouvés:', { checkinInput, checkoutInput, adultsInput });
-    
-    if (!checkinInput || !checkoutInput || !adultsInput) {
-        alert('⚠️ Erreur: Éléments du formulaire introuvables');
-        return;
-    }
-    
-    const checkin = checkinInput.value;
-    const checkout = checkoutInput.value;
-    const adults = adultsInput.value;
-    
-    console.log('Valeurs:', { checkin, checkout, adults });
-    
-    if (!checkin || !checkout) {
-        alert('⚠️ Veuillez sélectionner les dates de check-in et check-out');
-        return;
-    }
-    
-    const checkinDate = new Date(checkin);
-    const checkoutDate = new Date(checkout);
-    
-    if (checkoutDate <= checkinDate) {
-        alert('⚠️ La date de check-out doit être après la date de check-in');
-        return;
-    }
-    
-    try {
-        const url = `${API_URL}/rooms/search?checkin=${checkin}&checkout=${checkout}&adults=${adults}`;
-        console.log('Appel API:', url);
-        
-        const response = await fetch(url);
-        const rooms = await response.json();
-        
-        console.log('Chambres trouvées:', rooms);
-        
-        if (rooms.error) {
-            alert('❌ Erreur: ' + rooms.error);
-            return;
-        }
-        
-        if (rooms.length === 0) {
-            alert('❌ Aucune chambre disponible pour ces dates.');
-        } else {
-            const nights = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
-            alert(`✅ ${rooms.length} chambre(s) disponible(s) pour ${nights} nuit(s) !`);
-            document.querySelector('.rooms-section').scrollIntoView({behavior: 'smooth'});
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-        alert('❌ Erreur: ' + error.message + '\n\nAssurez-vous que le serveur est démarré (node server.js)');
-    }
-}
-
-// Fonction de réservation
-async function bookRoom(roomType) {
-    console.log('bookRoom appelée avec:', roomType);
-    
-    const checkinInput = document.getElementById('checkin');
-    const checkoutInput = document.getElementById('checkout');
-    const adultsInput = document.getElementById('adults');
-    
-    if (!checkinInput || !checkoutInput || !adultsInput) {
-        alert('⚠️ Erreur: Éléments du formulaire introuvables');
-        return;
-    }
-    
-    const checkin = checkinInput.value;
-    const checkout = checkoutInput.value;
-    const adults = adultsInput.value;
-    
-    if (!checkin || !checkout) {
-        alert('⚠️ Veuillez d\'abord effectuer une recherche avec vos dates de séjour !');
-        document.querySelector('.search-box').scrollIntoView({behavior: 'smooth'});
-        return;
-    }
-    
-    const guestName = prompt('Votre nom complet:');
-    if (!guestName) return;
-    
-    const guestEmail = prompt('Votre email:');
-    if (!guestEmail) return;
-    
-    const guestPhone = prompt('Votre téléphone:');
-    if (!guestPhone) return;
-    
-    const typeMap = {
-        'Standard': 'standard',
-        'Deluxe': 'premium',
-        'Présidentielle': 'presidential'
-    };
-    
-    const booking = {
-        roomType: typeMap[roomType] || 'standard',
-        checkin: checkin,
-        checkout: checkout,
-        adults: adults,
-        guestName,
-        guestEmail,
-        guestPhone
-    };
-    
-    console.log('Envoi réservation:', booking);
-    
-    try {
-        const response = await fetch(`${API_URL}/bookings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(booking)
-        });
-        
-        const result = await response.json();
-        console.log('Résultat:', result);
-        
-        if (result.success) {
-            alert(`✅ Réservation confirmée !\n\nNuméro: ${result.bookingId}\nTotal: £${result.booking.totalPrice} pour ${result.booking.nights} nuit(s)\n\nConfirmation envoyée à ${guestEmail}`);
-        } else {
-            alert('❌ Erreur: ' + (result.error || 'Erreur inconnue'));
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-        alert('❌ Erreur: ' + error.message);
-    }
-}
-
-// Fonctions pour la modal de connexion
-function openLoginModal() {
-    document.getElementById('loginModal').style.display = 'block';
-}
-
-function closeLoginModal() {
-    document.getElementById('loginModal').style.display = 'none';
-}
-
-function handleLogin(event) {
-    event.preventDefault();
-    alert('Connexion en construction');
-    closeLoginModal();
-}
-
-// Fermer la modal si clic en dehors
-window.onclick = function(event) {
-    const modal = document.getElementById('loginModal');
-    if (event.target == modal) {
-        closeLoginModal();
-    }
-}
-</script>
     </body>
 </html>
