@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Cheese Codes' prized project!</title>
+        <link type="text/css" rel="stylesheet" href="styles.css">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+        </style>
+    </head>
+
+    <body>
+        <script src="javascript.js"></script>
+<nav id="navbar">
+        <div id="hotelname">Cheesecode house</div>
+        <div id="search" onclick="document.querySelector('.search-box').scrollIntoView({behavior: 'smooth'})">Search</div>
+        <div id="menu" onclick="alert('Menu en construction')">Menu</div>
+        <div id="login" onclick="openLoginModal()">Log in</div>
+    </nav>
+    
+    <section class="hero-section">
+        <h1>Welcome to the Cheese Guesthouse</h1>
+        <p>Your dream stay begins here!</p>
+        <div class="search-box">
+            <form class="search-form" onsubmit="searchRooms(event)">
+                <div class="form-group">
+                    <label>Check-in</label>
+                    <input type="date" required>
+                </div>
+                <div class="form-group">
+                    <label>Check-out</label>
+                    <input type="date" required>
+                </div>
+                <div class="form-group">
+                    <label>Number of adults</label>
+                    <select required>
+                        <option value="1">1 adult</option>
+                        <option value="2">2 adults</option>
+                        <option value="3">3 adults</option>
+                        <option value="4">4 adults</option>
+                    </select>
+                </div>
+                <button type="submit" class="search-btn">Search</button>
+            </form>
+        </div>
+    </section>
+    
+    <section class="features">
+        <h2>Services</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🏊‍♂️</div>
+                <h3>Swimming Pool</h3>
+                <p>Enjoy some relaxing time in our heated swimming pool with a beautiful view on the ocean!</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🍽️</div>
+                <h3>Restaurant</h3>
+                <p>Tasty food made by our renowned chefs made just for you!</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💆‍♀️</div>
+                <h3>Spa</h3>
+                <p>Chill out in our premium spa</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🅿️</div>
+                <h3>Parking lot</h3>
+                <p>Private and secure parking lot for all of our clients</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📶</div>
+                <h3>Free WiFi</h3>
+                <p>High speed WiFi available everywhere in the hotel</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏋️‍♂️</div>
+                <h3>Gym</h3>
+                <p>Gym opened 24/7!</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="rooms-section">
+        <h2>Rooms</h2>
+        <div class="rooms-grid">
+            <div class="room-card">
+                <div class="room-image">🛏️</div>
+                <div class="room-content">
+                    <h3>Standard Room</h3>
+                    <p>Comfortable room with queen-size bed, personal bathroom and sights on the garden.</p>
+                    <div class="room-price">£89 per night</div>
+                    <button class="book-btn" onclick="bookRoom('Standard')">Book</button>
+                </div>
+            </div>
+            <div class="room-card">
+                <div class="room-image">🌟</div>
+                <div class="room-content">
+                    <h3>Premium Room</h3>
+                    <p>Vast room with a personal balcony, mini-bar and a breathtaking view on the landscape.</p>
+                    <div class="room-price">£149  per night</div>
+                    <button class="book-btn" onclick="bookRoom('Deluxe')">Book</button>
+                </div>
+            </div>
+            <div class="room-card">
+                <div class="room-image">👑</div>
+                <div class="room-content">
+                    <h3>Preseidential Room</h3>
+                    <p>Luxurious room with a large living room, jacuzzi and butlers available.</p>
+                    <div class="room-price">£299 per night</div>
+                    <button class="book-btn" onclick="bookRoom('Présidentielle')">Book</button>
+                </div>
+            </div>
+        </div>
+        <div id="loginModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeLoginModal()">&times;</span>
+        <h2>Connexion</h2>
+        <form class="login-form" onsubmit="handleLogin(event)">
+            <input type="email" placeholder="E-mail" required>
+            <input type="password" placeholder="Password" required>
+            <button type="submit">Log in</button>
+            <a href="#" onclick="event.preventDefault(); showRegisterForm()">Create an account</a>
+        </form>
+    </div>
+</div>
+    </section>
+    
+    <footer>
+        <p>&copy; 2025 Cheesecode. All rights reserved.</p>
+        <p>Stoke-on-Trent, England | contact@cheesecodehouse.com | +44 XXX XXX XXXX</p>
+    </footer>
+    
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeLoginModal()">&times;</span>
+            <h2>Connexion</h2>
+            <form class="login-form" onsubmit="handleLogin(event)">
+                <input type="email" placeholder="E-mail" required>
+                <input type="password" placeholder="Password" required>
+                <button type="submit">Se connecter</button>
+                <a href="#" onclick="alert('Function under construction')">Forgot your password?</a>
+                <a href="#" onclick="alert('Function under construction')">Create an account</a>
+            </form>
+        </div>
+    </div>
+    </body>
+</html>
