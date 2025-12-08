@@ -8,3 +8,4 @@
 On the home page, you can find the menu in the top bar in which you can log in or create an account.
 Then, you can navigate to the search button and input your check-in and check-out times as well as the number of adults.
 Underneath the search box, you can find the services we offer all of our clients and below that you can choose the type of room you want and their respective pricing.
+
