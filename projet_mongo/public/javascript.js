@@ -1,173 +1,4 @@
 const API_URL = 'http://localhost:3000/api';
-// Attendre que la page soit complètement chargée
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Page chargée, initialisation...');
-    
-    // Ajouter des IDs aux inputs s'ils n'existent pas
-    const dateInputs = document.querySelectorAll('input[type="date"]');
-    if (dateInputs[0]) dateInputs[0].id = 'checkin';
-    if (dateInputs[1]) dateInputs[1].id = 'checkout';
-    
-    const selectInput = document.querySelector('select');
-    if (selectInput) selectInput.id = 'adults';
-});
-
-// Fonction de recherche de chambres
-async function searchRooms(event) {
-    event.preventDefault();
-    console.log('searchRooms call');
-    
-    const checkinInput = document.getElementById('checkin');
-    const checkoutInput = document.getElementById('checkout');
-    const adultsInput = document.getElementById('adults');
-    
-    console.log('Elements found:', { checkinInput, checkoutInput, adultsInput });
-    
-    if (!checkinInput || !checkoutInput || !adultsInput) {
-        alert('⚠️ Error: Form elements not found⚠️');
-        return;
-    }
-    
-    const checkin = checkinInput.value;
-    const checkout = checkoutInput.value;
-    const adults = adultsInput.value;
-    
-    console.log('Valeurs:', { checkin, checkout, adults });
-    
-    if (!checkin || !checkout) {
-        alert('⚠️ Please select the check-in and check-out dates.⚠️');
-        return;
-    }
-    
-    const checkinDate = new Date(checkin);
-    const checkoutDate = new Date(checkout);
-    
-    if (checkoutDate <= checkinDate) {
-        alert('⚠️ The check-out date must be after the check-in date.⚠️');
-        return;
-    }
-    
-    try {
-        const url = `${API_URL}/rooms/search?checkin=${checkin}&checkout=${checkout}&adults=${adults}`;
-        console.log('Call API:', url);
-        
-        const response = await fetch(url);
-        const rooms = await response.json();
-        
-        console.log('Rooms found:', rooms);
-        
-        if (rooms.error) {
-            alert('❌ Error: ' + rooms.error+"❌");
-            return;
-        }
-        
-        if (rooms.length === 0) {
-            alert('❌ No rooms available for these dates.❌');
-        } else {
-            const nights = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
-            alert(`✅ ${rooms.length} room(s) available(s) pour ${nights} nights(s) !`);
-            document.querySelector('.rooms-section').scrollIntoView({behavior: 'smooth'});
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('❌ Error: ' + error.message + '\n\nMake sure the server is started (node ​​server.js)');
-    }
-}
-
-// Fonction de réservation
-async function bookRoom(roomType) {
-    console.log('bookRoom call with:', roomType);
-    
-    const checkinInput = document.getElementById('checkin');
-    const checkoutInput = document.getElementById('checkout');
-    const adultsInput = document.getElementById('adults');
-    
-    if (!checkinInput || !checkoutInput || !adultsInput) {
-        alert('⚠️ Error: Form elements not found⚠️');
-        return;
-    }
-    
-    const checkin = checkinInput.value;
-    const checkout = checkoutInput.value;
-    const adults = adultsInput.value;
-    
-    if (!checkin || !checkout) {
-        alert('⚠️ Please search first using your dates of stay!⚠️');
-        document.querySelector('.search-box').scrollIntoView({behavior: 'smooth'});
-        return;
-    }
-    
-    const guestName = prompt('Your full name:');
-    if (!guestName) return;
-    
-    const guestEmail = prompt('Your email:');
-    if (!guestEmail) return;
-    
-    const guestPhone = prompt('Your phone:');
-    if (!guestPhone) return;
-    
-    const typeMap = {
-        'Standard': 'standard',
-        'Deluxe': 'premium',
-        'Présidentielle': 'presidential'
-    };
-    
-    const booking = {
-        roomType: typeMap[roomType] || 'standard',
-        checkin: checkin,
-        checkout: checkout,
-        adults: adults,
-        guestName,
-        guestEmail,
-        guestPhone
-    };
-    
-    console.log('Send reservation:', booking);
-    
-    try {
-        const response = await fetch(`${API_URL}/bookings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(booking)
-        });
-        
-        const result = await response.json();
-        console.log('Result:', result);
-        
-        if (result.success) {
-            alert(`✅ Reservation confirmed!\n\nNumber: ${result.bookingId}\nTotal: £${result.booking.totalPrice} for ${result.booking.nights} night(s)\n\nConfirmation sent to ${guestEmail}`);
-        } else {
-            alert('❌ Error: ' + (result.error || 'Error unknown'));
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('❌ Error: ' + error.message);
-    }
-}
-
-// Fonctions pour la modal de connexion
-function openLoginModal() {
-    document.getElementById('loginModal').style.display = 'block';
-}
-
-function closeLoginModal() {
-    document.getElementById('loginModal').style.display = 'none';
-}
-
-function handleLogin(event) {
-    event.preventDefault();
-    alert('Connection under construction');
-    closeLoginModal();
-}
-
-// Fermer la modal si clic en dehors
-window.onclick = function(event) {
-    const modal = document.getElementById('loginModal');
-    if (event.target == modal) {
-        closeLoginModal();
-    }
-}
-// Variable globale pour l'utilisateur connecté
 let currentUser = null;
 
 // Charger l'utilisateur depuis le localStorage au démarrage
@@ -219,23 +50,113 @@ async function showMyBookings() {
         const response = await fetch(`${API_URL}/users/${currentUser.email}/bookings`);
         const bookings = await response.json();
         
-        if (bookings.length === 0) {
-            alert('You have no reservation.');
-            return;
-        }
-        
-        let message = '📋 My Réservations :\n\n';
-        bookings.forEach((b, i) => {
-            message += `${i + 1}. ${b.roomName}\n`;
-            message += `   From ${new Date(b.checkin).toLocaleDateString()} to ${new Date(b.checkout).toLocaleDateString()}\n`;
-            message += `   ${b.nights} night(s) - £${b.totalPrice}\n`;
-            message += `   Statut : ${b.status}\n\n`;
-        });
-        
-        alert(message);
+        // Créer et afficher la page des réservations
+        displayBookingsPage(bookings);
     } catch (error) {
         alert('Error loading reservations : ' + error.message);
     }
+}
+
+// Afficher la page des réservations
+function displayBookingsPage(bookings) {
+    // Masquer le contenu principal
+    document.querySelector('.hero-section').style.display = 'none';
+    document.querySelector('.features').style.display = 'none';
+    document.querySelector('.rooms-section').style.display = 'none';
+    document.querySelector('footer').style.display = 'none';
+    
+    // Créer la page des réservations si elle n'existe pas
+    let bookingsPage = document.getElementById('bookingsPage');
+    if (!bookingsPage) {
+        bookingsPage = document.createElement('div');
+        bookingsPage.id = 'bookingsPage';
+        bookingsPage.className = 'bookings-page';
+        document.querySelector('#app').appendChild(bookingsPage);
+    }
+    
+    // Construire le contenu
+    let content = `
+        <div class="bookings-container">
+            <div class="bookings-header">
+                <h1>📋 My Reservations</h1>
+                <button class="back-btn" onclick="closeBookingsPage()">← Back to Home</button>
+            </div>
+    `;
+    
+    if (bookings.length === 0) {
+        content += `
+            <div class="no-bookings">
+                <p>You have no reservation yet.</p>
+                <button class="search-btn" onclick="closeBookingsPage()">Search Rooms</button>
+            </div>
+        `;
+    } else {
+        content += '<div class="bookings-grid">';
+        bookings.forEach((booking, index) => {
+            const checkinDate = new Date(booking.checkin).toLocaleDateString('en-GB');
+            const checkoutDate = new Date(booking.checkout).toLocaleDateString('en-GB');
+            const statusClass = booking.status === 'confirmed' ? 'status-confirmed' : 'status-pending';
+            const statusText = booking.status === 'confirmed' ? 'Confirmed' : 'Pending';
+            
+            content += `
+                <div class="booking-card">
+                    <div class="booking-header">
+                        <h3>${booking.roomName || booking.roomType}</h3>
+                        <span class="booking-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="booking-details">
+                        <div class="detail-row">
+                            <span class="detail-label">📅 Check-in:</span>
+                            <span class="detail-value">${checkinDate}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">📅 Check-out:</span>
+                            <span class="detail-value">${checkoutDate}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">🌙 Duration:</span>
+                            <span class="detail-value">${booking.nights} night(s)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">👥 Adults:</span>
+                            <span class="detail-value">${booking.adults || 1}</span>
+                        </div>
+                        <div class="detail-row total-price">
+                            <span class="detail-label">💰 Total:</span>
+                            <span class="detail-value">£${booking.totalPrice}</span>
+                        </div>
+                    </div>
+                    ${booking.bookingId ? `<div class="booking-id">Booking #${booking.bookingId}</div>` : ''}
+                </div>
+            `;
+        });
+        content += '</div>';
+    }
+    
+    content += `
+        </div>
+        <footer>
+            <p>&copy; 2025 Cheesecode. All rights reserved.</p>
+            <p>Stoke-on-Trent, England | contact@cheesecodehouse.com | +44 XXX XXX XXXX</p>
+        </footer>
+    `;
+    
+    bookingsPage.innerHTML = content;
+    bookingsPage.style.display = 'block';
+}
+
+// Fermer la page des réservations
+function closeBookingsPage() {
+    const bookingsPage = document.getElementById('bookingsPage');
+    if (bookingsPage) {
+        bookingsPage.style.display = 'none';
+    }
+    
+    // Réafficher le contenu principal
+    document.querySelector('.hero-section').style.display = 'block';
+    document.querySelector('.features').style.display = 'block';
+    document.querySelector('.rooms-section').style.display = 'block';
+    document.querySelector('footer').style.display = 'block';
 }
 
 // Déconnexion
@@ -243,6 +164,7 @@ function logout() {
     currentUser = null;
     localStorage.removeItem('currentUser');
     updateLoginButton();
+    closeBookingsPage();
     alert('✅ You are disconnected');
 }
 
@@ -375,7 +297,7 @@ async function bookRoom(roomType) {
         const result = await response.json();
         
         if (result.success) {
-            alert(`✅ Reservation confirmed!\n\nNumber: ${result.bookingId}\nTotal: £${result.booking.totalPrice} for ${result.booking.nights} night(s)\n\nConfirmation sent to${guestEmail}`);
+            alert(`✅ Reservation confirmed!\n\nNumber: ${result.bookingId}\nTotal: £${result.booking.totalPrice} for ${result.booking.nights} night(s)\n\nConfirmation sent to ${guestEmail}`);
         } else {
             alert('❌ Error: ' + (result.error || 'Unknown error'));
         }
